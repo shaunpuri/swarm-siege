@@ -69,7 +69,10 @@ export function createHud(actions: HudActions): Hud {
       `<span class="p-icon">${def.icon}</span><span class="p-name">${def.name}</span><span class="p-cost">${def.cost}</span><span class="p-key">${def.key}</span>`,
       () => actions.onPower(kind),
     );
-    el.title = `${def.name}: ${def.desc}`;
+    // an info card that slides out beside the button: what it does, its price and cooldown
+    const tip = h("span", "p-tip");
+    tip.innerHTML = `<b>${def.name}</b><span>${def.desc}</span><small>${def.cost} coins | ready again after ${def.cooldown}s | key ${def.key}</small>`;
+    el.appendChild(tip);
     const cd = h("span", "p-cd");
     el.appendChild(cd);
     hud.powers.appendChild(el);
