@@ -17,7 +17,7 @@ const SHOTS: Shot[] = [
   { line: "01-intro", clip: "gameplay.mp4", start: 3, title: "SWARM SIEGE", sub: "5 worlds | 50 levels | a swarm that adapts" },
   { line: "02-build", clip: "gameplay.mp4", start: 14, title: "BUILD AND UPGRADE", sub: "every level is a new turret design" },
   { line: "03-swarm", clip: "anaconda-closeup.mp4", start: 0, title: "THE SWARM FIGHTS BACK", sub: "spiders, owls and the night anaconda" },
-  { line: "04-forest", clip: "boss-grassland.mp4", start: 26, title: "ELDERWOOD COLOSSUS", sub: "Forest World boss" },
+  { line: "04-forest", clip: "boss-grassland.mp4", start: 30, title: "ELDERWOOD COLOSSUS", sub: "Forest World boss" },
   { line: "05-snow", clip: "boss-snow.mp4", start: 22, title: "ICE DRAGON", sub: "Cold World boss" },
   { line: "06-desert", clip: "boss-desert.mp4", start: 17, title: "MUMMY KING", sub: "Desert boss" },
   { line: "07-water", clip: "boss-water.mp4", start: 22, title: "DAMYAAN", sub: "Aqua Realm boss" },
