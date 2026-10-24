@@ -1,0 +1,8 @@
+node_modules
+dist
+.tripo-key
+data
+art/models
+.scratch
+*.log
+.tripo-key*

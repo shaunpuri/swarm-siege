@@ -1,0 +1,23 @@
+{
+  "name": "swarm-siege",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun server/main.ts & bun --port=5173 ./index.html",
+    "server": "bun server/main.ts",
+    "build": "rm -rf dist && bun build ./index.html --outdir=dist --minify",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "art": "bun scripts/extract-art.ts && bun scripts/extract-snow.ts && bun scripts/extract-aqua.ts && bun scripts/extract-desert.ts && bun scripts/extract-cyber.ts && bun scripts/world-art.ts",
+    "preview": "bun deployment/serve.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.3",
+    "@types/three": "0.186.0",
+    "typescript": "7.0.2"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  }
+}

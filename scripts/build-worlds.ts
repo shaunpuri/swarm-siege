@@ -1,0 +1,190 @@
+// Authors src/config/worldmaps.ts from the 10 ChatGPT world layouts (art/source/chatgpt).
+// All five biomes of a layout are repaints of one picture, so roads are traced once, on the
+// Grassland version, by scripts/trace-road.ts. Coordinates are map pixels (1672x941).
+// Run with: bun scripts/build-worlds.ts [layout numbers...]
+//
+// A route is one or more legs. Each leg is traced from its first to its last stop (middle
+// stops pick the branch at forks); consecutive legs are joined by a portal teleport. A route
+// starts at a tunnel, a burrow (enemies dig out) or a sky drop zone (enemies land).
+
+type P = [number, number];
+type Entry = "tunnel" | "burrow" | "drop";
+type BaseKind = "outpost" | "fortress" | "reactor";
+// a leg is traced along the painted road, except "hand" legs which are used exactly as
+// given (for bridges and spots where the paint fools the road detector)
+type Leg = P[] | { hand: P[] };
+type RouteSpec = { legs: Leg[]; base: number; entry: Entry };
+type Spec = { routes: RouteSpec[]; bases: { kind: BaseKind; at: P }[]; pads: P[] };
+
+// shared stretches of road, for routes that merge before the base
+const L2_TAIL: P[] = [[1000, 645], [1066, 652], [1231, 648], [1447, 655], [1480, 652]];
+const L3_TAIL: P[] = [[940, 415], [975, 385], [1030, 375], [1100, 385], [1180, 380], [1250, 395], [1310, 440], [1335, 490], [1342, 560], [1360, 605], [1410, 640], [1440, 690]];
+const L4_START: P[] = [[190, 95], [228, 119], [290, 135], [360, 158], [460, 195], [563, 234], [666, 265], [720, 295], [760, 330]];
+const L5_TAIL: P[] = [[871, 342], [916, 356], [945, 390], [960, 430], [990, 452], [1060, 470], [1162, 480], [1200, 472], [1247, 490], [1290, 522], [1340, 535], [1400, 522], [1450, 500]];
+const L6_TAIL: P[] = [[1395, 560], [1410, 605], [1450, 625], [1470, 660], [1475, 690]];
+const L6_IN: P[] = [[190, 130], [230, 185], [260, 250], [330, 300], [355, 345], [380, 390], [385, 430]];
+const L7_TAIL: P[] = [[880, 440], [930, 440], [1006, 418], [1069, 420], [1149, 420], [1224, 435], [1300, 455], [1357, 460], [1450, 452]];
+const L8_START: P[] = [[150, 105], [200, 135], [250, 160], [335, 180], [400, 215]];
+const L8_RIGHT: P[] = [[1190, 290], [1225, 330], [1242, 380], [1235, 440], [1232, 520], [1228, 600], [1215, 640]];
+const L8_TAIL: P[] = [[1260, 680], [1308, 705], [1358, 715], [1410, 735]];
+const L9_IN: P[] = [[115, 104], [177, 145], [205, 175], [214, 229], [250, 256], [317, 266], [345, 295], [358, 330], [355, 380], [350, 420]];
+const L9_LOW: P[] = [[825, 605], [960, 605], [1010, 595], [1040, 575]];
+const L10_LOW: P[] = [[790, 520], [810, 560], [850, 600], [900, 625], [1000, 640], [1108, 652], [1170, 690], [1220, 720], [1280, 740], [1330, 765], [1400, 780], [1450, 775]];
+const L10_UP: P[] = [[1156, 425], [1205, 435], [1268, 462], [1334, 485], [1400, 420], [1466, 385]];
+const L10_BURROW: P[] = [[180, 717], [243, 710], [273, 687], [304, 639], [321, 563], [348, 519], [380, 500], [410, 480]];
+const L9_TAIL: P[] = [[1060, 560], [1100, 580], [1128, 615], [1174, 640], [1241, 668], [1320, 695], [1394, 718]];
+
+const SPECS: Record<number, Spec> = {
+  1: {
+    routes: [{ legs: [{ hand: [[180, 140], [205, 195], [280, 245], [420, 262], [560, 270], [660, 310], [740, 390], [840, 445], [980, 520], [1080, 568], [1230, 585], [1400, 605], [1470, 650], [1500, 712]] }], base: 0, entry: "tunnel" }],
+    bases: [{ kind: "outpost", at: [1530, 790] }],
+    pads: [[490, 185], [440, 330], [860, 315], [1340, 500], [1045, 660], [1295, 675]],
+  },
+  // zig-zag road over two bridges; the dead-end road in the lower left is a sky drop zone
+  2: {
+    routes: [
+      { legs: [{ hand: [[135, 182], [311, 190], [530, 216], [600, 232], [650, 250], [700, 258], [748, 268], [829, 284], [890, 262], [930, 260], [1050, 285], [1132, 304], [1170, 330], [1180, 360], [1165, 395], [1135, 432], [1080, 448], [905, 456], [860, 470], [845, 495], [855, 525], [880, 552], [915, 572], [930, 600], [960, 630], ...L2_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [[420, 795], [470, 770], [540, 690], [600, 650], [700, 655], [800, 655], [870, 655], [930, 645], ...L2_TAIL] }], base: 0, entry: "drop" },
+    ],
+    bases: [{ kind: "outpost", at: [1565, 652] }],
+    pads: [[480, 140], [960, 185], [325, 340], [1045, 365], [690, 590], [1385, 578], [1118, 735]],
+  },
+  // a burrow in the lower left feeds a second road into the middle of the main road
+  3: {
+    routes: [
+      { legs: [{ hand: [[150, 125], [195, 128], [275, 150], [381, 145], [440, 135], [490, 150], [508, 190], [503, 250], [500, 295], [540, 312], [600, 340], [700, 348], [778, 350], [830, 378], [862, 412], [880, 430], ...L3_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [[300, 730], [402, 703], [460, 670], [495, 640], [520, 584], [563, 548], [663, 530], [750, 535], [785, 525], [800, 480], [835, 450], [870, 430], ...L3_TAIL] }], base: 0, entry: "burrow" },
+    ],
+    bases: [{ kind: "outpost", at: [1535, 720] }],
+    pads: [[360, 235], [650, 250], [1335, 305], [1215, 480], [640, 625], [400, 800], [1055, 780]],
+  },
+  // the road forks in the centre: one branch to each base
+  4: {
+    routes: [
+      { legs: [{ hand: [...L4_START, [760, 365], [724, 405], [680, 440], [640, 475], [594, 515], [540, 530], [490, 555], [460, 590], [420, 615], [381, 650], [320, 690], [260, 712]] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [...L4_START, [800, 352], [919, 362], [983, 382], [1046, 420], [1100, 440], [1150, 465], [1196, 490], [1225, 530], [1250, 570], [1293, 603], [1337, 650], [1400, 690], [1445, 708]] }], base: 1, entry: "tunnel" },
+    ],
+    bases: [{ kind: "outpost", at: [130, 775] }, { kind: "outpost", at: [1545, 775] }],
+    pads: [[650, 180], [425, 275], [1075, 330], [600, 395], [1035, 545], [335, 575], [1445, 620], [468, 700], [1278, 718]],
+  },
+  // drop zone at the top centre and a burrow at the dead-end road in the lower middle
+  5: {
+    routes: [
+      { legs: [{ hand: [[95, 425], [140, 440], [211, 446], [344, 500], [437, 506], [500, 485], [545, 445], [580, 395], [640, 370], [725, 348], [800, 340], ...L5_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [[815, 140], [818, 213], [810, 270], [800, 320], [820, 340], ...L5_TAIL] }], base: 0, entry: "drop" },
+      { legs: [{ hand: [[930, 700], [1000, 700], [1075, 708], [1171, 735], [1260, 738], [1320, 700], [1340, 640], [1345, 575], [1365, 545], [1400, 522], [1450, 500]] }], base: 0, entry: "burrow" },
+    ],
+    bases: [{ kind: "fortress", at: [1545, 465] }],
+    pads: [[650, 275], [980, 275], [425, 410], [1260, 400], [520, 600], [1220, 645], [1128, 800]],
+  },
+  // the tunnel road ends in a portal: half the swarm teleports to the top-right portal, the
+  // rest walks the long way east over the bridge
+  6: {
+    routes: [
+      { legs: [{ hand: L6_IN }, { hand: [[1340, 200], [1325, 240], [1335, 285], [1390, 315], [1450, 340], [1478, 390], [1475, 435], [1430, 465], [1395, 510], ...L6_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [...L6_IN, [430, 455], [494, 445], [594, 425], [667, 400], [730, 390], [790, 385], [860, 370], [912, 352], [960, 365], [1001, 372], [1045, 395], [1090, 440], [1126, 483], [1218, 505], [1280, 520], [1373, 535], ...L6_TAIL] }], base: 0, entry: "tunnel" },
+    ],
+    bases: [{ kind: "reactor", at: [1510, 760] }],
+    pads: [[420, 230], [540, 330], [1105, 305], [1290, 455], [625, 505], [485, 590], [1270, 615]],
+  },
+  // a tunnel and a burrow whose roads merge in the centre
+  7: {
+    routes: [
+      { legs: [{ hand: [[150, 128], [200, 150], [264, 165], [353, 170], [405, 170], [450, 200], [492, 220], [515, 260], [555, 285], [602, 302], [650, 325], [700, 355], [760, 375], [800, 388], [836, 425], ...L7_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [[190, 730], [252, 712], [328, 700], [440, 693], [500, 690], [547, 660], [599, 622], [662, 618], [715, 570], [774, 553], [810, 520], [834, 480], [840, 445], ...L7_TAIL] }], base: 0, entry: "burrow" },
+    ],
+    bases: [{ kind: "reactor", at: [1560, 435] }],
+    pads: [[405, 268], [605, 215], [965, 345], [1345, 395], [715, 480], [1000, 505], [405, 622], [625, 715]],
+  },
+  // the road splits around the lake (top arc over one bridge, left side over the other) and
+  // meets again before the base; a drop zone top right joins the right side of the loop
+  8: {
+    routes: [
+      { legs: [{ hand: [...L8_START, [481, 210], [573, 197], [640, 190], [720, 195], [790, 190], [865, 205], [955, 212], [1060, 208], [1118, 215], [1165, 235], ...L8_RIGHT, ...L8_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [...L8_START, [410, 250], [410, 320], [395, 390], [370, 440], [330, 495], [360, 525], [430, 538], [506, 575], [560, 600], [650, 605], [730, 612], [780, 650], [864, 655], [978, 658], [1096, 648], [1167, 630], [1215, 650], ...L8_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [[1350, 110], [1325, 154], [1270, 190], [1210, 215], [1180, 250], ...L8_RIGHT, ...L8_TAIL] }], base: 0, entry: "drop" },
+    ],
+    bases: [{ kind: "reactor", at: [1530, 785] }],
+    pads: [[465, 140], [1110, 148], [318, 335], [1328, 290], [205, 515], [1330, 545], [392, 618], [1095, 735]],
+  },
+  // the tunnel road ends at a portal on the left: some enemies teleport to the top-right portal
+  // and wind down from there, the rest walk on along the lower road, where a burrow joins
+  9: {
+    routes: [
+      { legs: [{ hand: L9_IN }, { hand: [[1376, 110], [1330, 140], [1325, 170], [1338, 210], [1320, 245], [1270, 262], [1225, 240], [1177, 245], [1120, 230], [1071, 240], [1035, 228], [957, 237], [900, 266], [878, 300], [923, 356], [930, 437], [960, 473], [1012, 491], [1046, 521], [1055, 545], ...L9_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [...L9_IN, [385, 485], [438, 521], [450, 569], [477, 595], [540, 602], [679, 602], [729, 608], ...L9_LOW, ...L9_TAIL] }], base: 0, entry: "tunnel" },
+      { legs: [{ hand: [[742, 750], [735, 660], [740, 620], ...L9_LOW, ...L9_TAIL] }], base: 0, entry: "burrow" },
+    ],
+    bases: [{ kind: "reactor", at: [1530, 742] }],
+    pads: [[300, 140], [840, 170], [1450, 185], [230, 345], [1045, 415], [350, 600], [1365, 585], [640, 685], [838, 685]],
+  },
+  // the final map: a tunnel, a drop zone and a burrow; roads merge, then split to two bases;
+  // the burrow road reaches a portal that shortcuts to the upper base's road. The boss takes
+  // the last route, so the long tunnel road comes last
+  10: {
+    routes: [
+      { legs: [{ hand: [[851, 140], [854, 275], [895, 333], [910, 390], [962, 408], [1059, 400], [1100, 420], ...L10_UP] }], base: 0, entry: "drop" },
+      { legs: [{ hand: L10_BURROW }, { hand: [[1112, 405], ...L10_UP] }], base: 0, entry: "burrow" },
+      { legs: [{ hand: [...L10_BURROW, [460, 500], [501, 510], [542, 497], [574, 492], [616, 514], [650, 488], [739, 483], [785, 478], ...L10_LOW] }], base: 1, entry: "burrow" },
+      { legs: [{ hand: [[125, 130], [177, 141], [224, 156], [245, 190], [267, 219], [357, 232], [458, 226], [540, 235], [600, 262], [660, 290], [720, 305], [760, 325], [790, 355], [805, 390], [805, 430], [795, 470], ...L10_LOW] }], base: 1, entry: "tunnel" },
+    ],
+    bases: [{ kind: "reactor", at: [1555, 360] }, { kind: "reactor", at: [1530, 770] }],
+    pads: [[370, 170], [770, 240], [462, 285], [985, 305], [725, 400], [1290, 410], [940, 465], [225, 520], [1290, 575], [420, 640], [1090, 725]],
+  },
+};
+
+const ROOT = `${import.meta.dir}/..`;
+const DEBUG = process.env["TRACE_DEBUG"] ?? "/tmp";
+
+function trace(layout: number, stops: P[], tag: string): P[] {
+  const proc = Bun.spawnSync(["bun", `${ROOT}/scripts/trace-road.ts`, `${ROOT}/art/source/chatgpt/grassland-${layout}.png`, `${DEBUG}/w${layout}-${tag}`, stops.map((s) => s.join(",")).join(" ")], { stdout: "pipe", stderr: "pipe" });
+  if (proc.exitCode !== 0) throw new Error(`layout ${layout} ${tag}: ${proc.stderr.toString()}`);
+  const parsed: unknown = JSON.parse(proc.stdout.toString());
+  if (!Array.isArray(parsed)) throw new Error("bad trace output");
+  return parsed.map((pt): P => {
+    if (!Array.isArray(pt)) throw new Error("bad point");
+    return [Number(pt[0]), Number(pt[1])];
+  });
+}
+
+const fmt = (p: P): string => `[${p[0]}, ${p[1]}]`;
+const lines: string[] = [
+  "// Generated by scripts/build-worlds.ts from the world maps in art/source/chatgpt. Do not edit",
+  "// by hand: change the spec in that script and run it again. Coordinates are map pixels",
+  "// (1672x941). jumps[i] lists waypoint indices where a portal teleports to the next point.",
+  "",
+  'import type { BaseKind, Entry } from "@/types";',
+  "",
+  "type P = [number, number];",
+  "export type WorldMapSpec = { routes: P[][]; routeBase: number[]; entries: Entry[]; jumps: number[][]; bases: { kind: BaseKind; at: P }[]; pads: P[] };",
+  "",
+  "export const WORLD_MAPS: Record<number, WorldMapSpec> = {",
+];
+for (const [key, spec] of Object.entries(SPECS)) {
+  const layout = Number(key);
+  const routes: P[][] = [];
+  const jumps: number[][] = [];
+  spec.routes.forEach((r, ri) => {
+    const pts: P[] = [];
+    const js: number[] = [];
+    r.legs.forEach((leg, li) => {
+      if (li > 0) js.push(pts.length - 1);
+      pts.push(...("hand" in leg ? leg.hand : trace(layout, leg, `r${ri}l${li}`)));
+    });
+    const base = spec.bases[r.base];
+    if (base) pts.push(base.at);
+    routes.push(pts);
+    jumps.push(js);
+  });
+  lines.push(`  ${layout}: {`);
+  lines.push(`    routes: [\n${routes.map((r) => `      [${r.map(fmt).join(", ")}],`).join("\n")}\n    ],`);
+  lines.push(`    routeBase: [${spec.routes.map((r) => r.base).join(", ")}],`);
+  lines.push(`    entries: [${spec.routes.map((r) => `"${r.entry}"`).join(", ")}],`);
+  lines.push(`    jumps: [${jumps.map((j) => `[${j.join(", ")}]`).join(", ")}],`);
+  lines.push(`    bases: [${spec.bases.map((b) => `{ kind: "${b.kind}", at: ${fmt(b.at)} }`).join(", ")}],`);
+  lines.push(`    pads: [${spec.pads.map(fmt).join(", ")}],`);
+  lines.push("  },");
+  console.log(`layout ${layout}: ${routes.map((r) => r.length).join("+")} road points`);
+}
+lines.push("};", "");
+await Bun.write(`${ROOT}/src/config/worldmaps.ts`, lines.join("\n"));

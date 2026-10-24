@@ -1,0 +1,156 @@
+22:57:46 layout 1: new chat
+23:04:52 layout 1: chat opened
+23:05:07 saved snow-1.png (1 option(s))
+23:05:22 saved desert-1.png (1 option(s))
+23:07:33 saved water-1.png (5 option(s))
+23:07:53 layout 1: chat opened
+23:08:01 saved cyber-1.png (4 option(s))
+23:08:08 layout 2: chat opened
+23:09:40 saved grassland-2.png (1 option(s))
+23:09:42 saved cyber-1.png (1 option(s))
+23:09:48 layout 2: chat opened
+23:09:55 saved snow-2.png (3 option(s))
+23:10:04 saved snow-2.png (1 option(s))
+23:11:18 saved desert-2.png (1 option(s))
+23:11:19 saved desert-2.png (1 option(s))
+--- restart 23:12:08
+23:12:26 layout 1: chat opened
+23:13:14 layout 1: chat opened
+23:13:30 saved desert-1.png (1 option(s))
+23:13:45 saved water-1.png (1 option(s))
+23:15:05 saved cyber-1.png (1 option(s))
+23:15:12 layout 2: chat opened
+23:17:03 layout 1 desert: new chat with the grassland map
+23:18:03 saved desert-1.png (1 option(s))
+23:18:09 layout 1 water: new chat with the grassland map
+23:19:38 saved water-1.png (1 option(s))
+23:19:44 layout 1 cyber: new chat with the grassland map
+23:21:09 saved cyber-1.png (1 option(s))
+23:21:15 layout 2 grassland: new chat
+23:21:42 saved grassland-2.png (1 option(s))
+23:21:49 layout 2 snow: new chat with the grassland map
+23:24:52 saved snow-2.png (1 option(s))
+23:24:58 layout 2 desert: new chat with the grassland map
+23:26:25 saved desert-2.png (1 option(s))
+23:26:32 layout 2 water: new chat with the grassland map
+23:27:34 saved water-2.png (2 option(s))
+23:27:41 layout 2 cyber: new chat with the grassland map
+23:29:11 saved cyber-2.png (1 option(s))
+23:29:17 layout 3 grassland: new chat
+--- restart 23:32:13: dedupe + visible-generation check
+23:32:23 layout 2 grassland: new chat
+--- 23:34:59 style refs from user designs; redo cyber/water/desert
+23:35:11 layout 1 desert: new chat with the grassland map
+23:37:03 sprite base-snow-1: new chat
+23:37:26 layout 1 desert: new chat with the grassland map
+23:38:31 saved desert-1.png (1 option(s))
+23:38:37 layout 1 water: new chat with the grassland map
+23:40:06 saved water-1.png (1 option(s))
+23:40:12 layout 1 cyber: new chat with the grassland map
+23:41:21 sprite base-snow-1: new chat
+23:43:09 saved sprite-base-snow-1.png (1 option(s))
+23:43:15 sprite base-snow-2: new chat
+23:44:51 layout 1 cyber: new chat with the grassland map
+23:53:06 saved cyber-1.png (4 option(s))
+23:53:12 layout 2 grassland: new chat
+--- 23:53:34 removed wrong cyber-1 (was a base sprite); 16:9 filter
+23:53:44 layout 1 cyber: new chat with the grassland map
+23:54:58 saved cyber-1.png (1 option(s))
+23:55:04 layout 2 grassland: new chat
+23:56:25 saved grassland-2.png (1 option(s))
+23:56:31 layout 2 snow: new chat with the grassland map
+23:57:54 saved snow-2.png (1 option(s))
+23:58:00 layout 2 desert: new chat with the grassland map
+23:59:18 saved desert-2.png (1 option(s))
+23:59:24 layout 2 water: new chat with the grassland map
+00:00:51 saved water-2.png (1 option(s))
+00:00:57 layout 2 cyber: new chat with the grassland map
+00:02:11 saved cyber-2.png (1 option(s))
+00:02:19 layout 3 grassland: new chat
+00:03:33 saved grassland-3.png (1 option(s))
+00:03:40 layout 3 snow: new chat with the grassland map
+00:12:19 layout 3 snow: new chat with the grassland map
+00:12:40 layout 3 snow: new chat with the grassland map
+00:14:02 saved snow-3.png (1 option(s))
+00:14:08 layout 3 desert: new chat with the grassland map
+00:15:49 saved desert-3.png (1 option(s))
+00:15:55 layout 3 water: new chat with the grassland map
+00:17:07 saved water-3.png (1 option(s))
+00:17:13 layout 3 cyber: new chat with the grassland map
+00:26:00 layout 3 cyber: new chat with the grassland map
+00:27:53 saved cyber-3.png (1 option(s))
+00:27:59 layout 4 grassland: new chat
+00:29:14 saved grassland-4.png (1 option(s))
+00:29:20 layout 4 snow: new chat with the grassland map
+00:31:01 saved snow-4.png (1 option(s))
+00:31:07 layout 4 desert: new chat with the grassland map
+00:32:34 saved desert-4.png (1 option(s))
+00:32:40 layout 4 water: new chat with the grassland map
+00:34:23 saved water-4.png (1 option(s))
+00:34:30 layout 4 cyber: new chat with the grassland map
+00:36:31 layout 4 cyber: new chat with the grassland map
+00:37:46 saved cyber-4.png (1 option(s))
+00:37:52 layout 5 grassland: new chat
+00:39:14 saved grassland-5.png (1 option(s))
+00:39:20 layout 5 snow: new chat with the grassland map
+00:40:39 saved snow-5.png (1 option(s))
+00:40:45 layout 5 desert: new chat with the grassland map
+00:42:00 saved desert-5.png (1 option(s))
+00:42:06 layout 5 water: new chat with the grassland map
+00:43:40 saved water-5.png (1 option(s))
+00:43:46 layout 5 cyber: new chat with the grassland map
+00:45:04 saved cyber-5.png (1 option(s))
+00:45:10 layout 6 grassland: new chat
+00:46:50 saved grassland-6.png (1 option(s))
+00:46:57 layout 6 snow: new chat with the grassland map
+00:48:33 saved snow-6.png (1 option(s))
+00:48:40 layout 6 desert: new chat with the grassland map
+00:49:57 saved desert-6.png (1 option(s))
+00:50:03 layout 6 water: new chat with the grassland map
+00:51:28 saved water-6.png (1 option(s))
+00:51:34 layout 6 cyber: new chat with the grassland map
+00:52:56 saved cyber-6.png (1 option(s))
+00:53:02 layout 7 grassland: new chat
+00:54:14 saved grassland-7.png (1 option(s))
+00:54:20 layout 7 snow: new chat with the grassland map
+00:55:59 saved snow-7.png (1 option(s))
+00:56:05 layout 7 desert: new chat with the grassland map
+00:57:34 saved desert-7.png (1 option(s))
+00:57:41 layout 7 water: new chat with the grassland map
+00:59:26 saved water-7.png (1 option(s))
+00:59:33 layout 7 cyber: new chat with the grassland map
+01:01:12 saved cyber-7.png (1 option(s))
+01:01:18 layout 8 grassland: new chat
+01:02:46 saved grassland-8.png (1 option(s))
+01:02:52 layout 8 snow: new chat with the grassland map
+01:04:25 saved snow-8.png (1 option(s))
+01:04:31 layout 8 desert: new chat with the grassland map
+01:05:51 saved desert-8.png (1 option(s))
+01:05:57 layout 8 water: new chat with the grassland map
+01:07:20 saved water-8.png (1 option(s))
+01:07:27 layout 8 cyber: new chat with the grassland map
+01:08:51 saved cyber-8.png (1 option(s))
+01:08:58 layout 9 grassland: new chat
+01:10:14 saved grassland-9.png (1 option(s))
+01:10:20 layout 9 snow: new chat with the grassland map
+01:12:07 saved snow-9.png (1 option(s))
+01:12:13 layout 9 desert: new chat with the grassland map
+01:13:30 saved desert-9.png (1 option(s))
+01:13:36 layout 9 water: new chat with the grassland map
+01:15:37 saved water-9.png (1 option(s))
+01:15:43 layout 9 cyber: new chat with the grassland map
+01:17:25 saved cyber-9.png (1 option(s))
+01:17:31 layout 10 grassland: new chat
+01:19:01 saved grassland-10.png (1 option(s))
+01:19:07 layout 10 snow: new chat with the grassland map
+01:20:39 saved snow-10.png (1 option(s))
+01:20:45 layout 10 desert: new chat with the grassland map
+01:23:13 saved desert-10.png (2 option(s))
+01:23:19 layout 10 water: new chat with the grassland map
+01:24:43 saved water-10.png (1 option(s))
+01:24:49 layout 10 cyber: new chat with the grassland map
+01:26:28 saved cyber-10.png (1 option(s))
+01:26:28 all maps done
+17:41:11 layout 3 water: new chat with the grassland map
+17:44:08 saved water-3.png (2 option(s))
+17:44:08 all maps done

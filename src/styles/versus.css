@@ -1,0 +1,468 @@
+/* online versus: title menu, rooms (party panel in the style of DEADSHOT.io), in-game panels,
+   split view, plus difficulty, badges and the mobile rotate hint */
+
+.title-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.big.play.versus {
+  border-color: #f87171;
+  background: linear-gradient(180deg, #b91c1c, #7f1d1d);
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.45);
+  font-size: 22px;
+  padding: 14px 48px;
+  animation: none;
+}
+.big.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* versus menu and room */
+.screen.versus {
+  background: radial-gradient(circle at 50% 20%, #3b0764, #020617 70%);
+}
+.vs-body {
+  margin-top: 84px;
+  width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.vs-intro {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vs-intro b {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: #fde68a;
+}
+.vs-intro span {
+  font-size: 18px;
+  color: #cbd5e1;
+}
+.vs-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.vs-field small,
+.vs-roomcode small {
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+.vs-name,
+.vs-code {
+  font-family: var(--display);
+  font-size: 24px;
+  text-align: center;
+  color: #fff;
+  background: rgba(2, 6, 23, 0.85);
+  border: 2px solid var(--line-strong);
+  border-radius: 12px;
+  padding: 10px 16px;
+  width: 360px;
+  outline: none;
+}
+.vs-code {
+  width: 220px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+.vs-cards {
+  display: flex;
+  gap: 18px;
+}
+.vs-card {
+  width: 380px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.vs-card small {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+}
+.vs-card b {
+  font-family: var(--display);
+  font-size: 24px;
+}
+.vs-card span {
+  font-size: 17px;
+  color: #cbd5e1;
+}
+.vs-error {
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.6);
+  border: 1px solid #f87171;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 17px;
+}
+.vs-roomcode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.vs-roomcode b {
+  font-family: var(--display);
+  font-size: 72px;
+  letter-spacing: 0.25em;
+  color: #fde68a;
+  text-shadow: 0 0 24px rgba(250, 204, 21, 0.5);
+}
+.small.copy {
+  flex: 0 0 auto;
+  font-family: var(--display);
+  padding: 8px 18px;
+}
+.vs-slots {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.vs-slot {
+  width: 300px;
+  height: 120px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  position: relative;
+  background: rgba(15, 23, 42, 0.9);
+  border: 2px solid var(--line);
+}
+.vs-slot.filled {
+  border-color: #4ade80;
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.3);
+}
+.vs-slot.empty {
+  border-style: dashed;
+  opacity: 0.7;
+}
+.vs-slot .avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-size: 30px;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+}
+.vs-slot b {
+  font-size: 20px;
+}
+.crown {
+  position: absolute;
+  top: -12px;
+  right: 14px;
+  font-style: normal;
+  font-family: var(--display);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  color: #422006;
+  background: var(--gold);
+}
+.vs-versus {
+  font-family: var(--display);
+  font-size: 34px;
+  color: #f87171;
+}
+.vs-wait,
+.vs-note {
+  font-size: 18px;
+  color: #cbd5e1;
+}
+.vs-note {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* in-game panels */
+.vs-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.vs-rival {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  width: 276px;
+  padding: 8px 10px 10px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: auto;
+}
+.vs-rival b {
+  font-family: var(--display);
+  font-size: 13px;
+  color: #fca5a5;
+}
+.vs-rival-stats {
+  font-size: 13px;
+  color: #e2e8f0;
+}
+.vs-rival-track {
+  height: 6px;
+  background: #1e293b;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.vs-rival-track div {
+  height: 100%;
+  background: linear-gradient(90deg, #f87171, #4ade80);
+}
+.vs-rival canvas {
+  width: 256px;
+  height: 144px;
+  border-radius: 8px;
+}
+.small.split {
+  flex: 0 0 auto;
+  font-family: var(--display);
+  font-size: 11px;
+  padding: 6px;
+  border-color: #fca5a5;
+}
+.vs-you {
+  position: absolute;
+  left: 50%;
+  bottom: 100px;
+  transform: translateX(-50%);
+  font-family: var(--display);
+  font-size: 12px;
+  color: #bbf7d0;
+  background: rgba(2, 6, 23, 0.7);
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+.vs-shop {
+  position: absolute;
+  left: 310px;
+  right: 290px;
+  bottom: 8px;
+  display: flex;
+  gap: 5px;
+  align-items: stretch;
+  pointer-events: auto;
+}
+.vs-shop-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--display);
+  font-size: 10px;
+  color: #fca5a5;
+  text-align: center;
+}
+.vs-item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: linear-gradient(180deg, rgba(127, 29, 29, 0.9), rgba(30, 10, 20, 0.95));
+}
+.vs-item b {
+  font-size: 13px;
+  line-height: 1.1;
+}
+.vs-item small {
+  font-size: 11px;
+  color: #fecaca;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.vs-item em {
+  font-style: normal;
+  font-family: var(--display);
+  font-size: 13px;
+  color: var(--gold);
+}
+.vs-item.boss {
+  border-color: var(--gold);
+}
+.vs-item.poor {
+  opacity: 0.45;
+}
+.vs-item:hover:not(.poor) {
+  filter: brightness(1.25);
+}
+
+/* split view: the rival's screen, a 1280x720 canvas scaled into its half of the window */
+.rival-pane {
+  position: absolute;
+  width: 1280px;
+  height: 720px;
+  transform-origin: center center;
+  border: 3px solid rgba(248, 113, 113, 0.8);
+  box-sizing: border-box;
+}
+.rival-pane canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.small.rival-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  flex: 0 0 auto;
+  font-family: var(--display);
+  font-size: 16px;
+  padding: 10px 16px;
+}
+
+/* result table */
+.vs-table {
+  width: 100%;
+  margin: 12px 0 4px;
+  border-collapse: collapse;
+  font-size: 18px;
+}
+.vs-table th {
+  font-family: var(--display);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: left;
+  padding: 4px 8px;
+}
+.vs-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-top: 1px solid var(--line);
+}
+.vs-table tr.win td {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+/* difficulty picker (level briefing) and cleared gems (level map) */
+.diff-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.diff-pick small {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+}
+.diff {
+  flex: 1;
+  font-family: var(--display);
+  font-size: 13px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  border: 2px solid color-mix(in srgb, var(--c) 50%, transparent);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--c);
+}
+.diff.on {
+  background: color-mix(in srgb, var(--c) 25%, #0b1328);
+  border-color: var(--c);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--c) 45%, transparent);
+}
+.diff i {
+  display: block;
+  font-style: normal;
+  font-size: 9px;
+  opacity: 0.8;
+}
+.gem {
+  position: absolute;
+  right: -2px;
+  bottom: 2px;
+  width: 22px;
+  height: 22px;
+  transform: rotate(45deg);
+  background: var(--c);
+  border: 2px solid #fff;
+  box-shadow: 0 0 10px var(--c);
+}
+
+/* badges */
+.badge-grid {
+  margin-top: 84px;
+  display: grid;
+  grid-template-columns: repeat(6, 190px);
+  gap: 12px;
+}
+.badge-card {
+  min-height: 170px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+.badge-card.on {
+  opacity: 1;
+  filter: none;
+  border-color: var(--c);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--c) 40%, transparent);
+}
+.badge-card b {
+  font-family: var(--display);
+  font-size: 12px;
+}
+.badge-card small {
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.15;
+}
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+.badge-chip {
+  font-family: var(--display);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: #0b1328;
+  background: var(--c);
+  box-shadow: 0 0 14px var(--c);
+}

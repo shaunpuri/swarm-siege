@@ -1,0 +1,360 @@
+:root {
+  --bg: #020617;
+  --panel: rgba(8, 15, 35, 0.86);
+  --panel-solid: #0b1328;
+  --line: rgba(125, 211, 252, 0.35);
+  --line-strong: rgba(125, 211, 252, 0.75);
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  --gold: #facc15;
+  --good: #4ade80;
+  --bad: #f87171;
+  --evolve: #c084fc;
+  --basic: #3b82f6;
+  --rapid: #22c55e;
+  --heavy: #a855f7;
+  --display: "Orbitron", "Rajdhani", sans-serif;
+  --body: "Rajdhani", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #0c1a3a, var(--bg) 70%);
+  color: var(--text);
+  font-family: var(--body);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1280px;
+  height: 720px;
+  transform-origin: center center;
+  overflow: hidden;
+  box-shadow: 0 0 80px rgba(56, 189, 248, 0.15);
+}
+
+#gl,
+#fx {
+  position: absolute;
+  inset: 0;
+  width: 1280px;
+  height: 720px;
+  display: block;
+}
+
+/* the 2D overlay sits on the WebGL scene and receives all pointer input */
+#fx {
+  touch-action: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+button {
+  font-family: var(--body);
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* top bar */
+.topbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.55));
+  border-bottom: 1px solid var(--line);
+  pointer-events: none;
+}
+.topbar > * {
+  pointer-events: auto;
+}
+.lvl {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  min-width: 250px;
+}
+#lvlName {
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: #bae6fd;
+}
+#waveInfo {
+  font-size: 18px;
+  font-weight: 700;
+}
+.coins {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--gold);
+  text-shadow: 0 0 12px rgba(250, 204, 21, 0.5);
+}
+.coin {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fef9c3, #facc15 45%, #a16207);
+  box-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
+}
+.bases {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+.base-chip {
+  font-size: 14px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.8);
+}
+.base-chip b {
+  font-size: 16px;
+}
+.base-chip.reactor {
+  border-color: rgba(74, 222, 128, 0.6);
+}
+.base-chip.low {
+  border-color: var(--bad);
+  color: #fecaca;
+  animation: blink 0.8s infinite;
+}
+.controls {
+  display: flex;
+  gap: 6px;
+}
+.controls button {
+  font-size: 13px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.85);
+}
+.controls button:hover {
+  border-color: var(--line-strong);
+  background: rgba(30, 58, 138, 0.6);
+}
+
+/* wave call */
+/* bottom-left corner: the top-left of every map is the entrance tunnel */
+.wave-panel {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
+  max-width: 420px;
+}
+#btnWave {
+  position: relative;
+  align-self: flex-start;
+  font-family: var(--display);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: linear-gradient(180deg, rgba(153, 27, 27, 0.9), rgba(69, 10, 10, 0.9));
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.35);
+}
+#btnWave::after {
+  content: attr(data-countdown);
+  position: absolute;
+  left: 100%;
+  margin-left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--body);
+  font-size: 14px;
+  color: #fecaca;
+  white-space: nowrap;
+}
+#btnWave:disabled {
+  opacity: 0.55;
+  cursor: default;
+  border-color: var(--line);
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: none;
+}
+#btnWave.pulse {
+  animation: pulse 1.2s infinite;
+}
+.preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  font-size: 13px;
+}
+.preview small {
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-right: 2px;
+}
+.pv {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid var(--line);
+}
+.pv i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.pv.scout i {
+  background: #ef4444;
+}
+.pv.brute i {
+  background: #f97316;
+}
+.pv.overlord i {
+  background: #a855f7;
+}
+.pv.titan i {
+  background: #16a34a;
+}
+.pv.boss {
+  border-color: var(--bad);
+  color: #fecaca;
+}
+
+/* boss bar */
+.boss-bar {
+  position: absolute;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 440px;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: #fecaca;
+  text-shadow: 0 0 10px rgba(248, 113, 113, 0.7);
+}
+.boss-bar .track {
+  margin-top: 4px;
+  height: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: rgba(2, 6, 23, 0.85);
+  overflow: hidden;
+}
+#bossFill {
+  height: 100%;
+  background: linear-gradient(90deg, #dc2626, #a3e635);
+  transition: width 0.15s linear;
+}
+
+/* power-ups: a column in the left margin beside the painted map */
+.powers {
+  position: absolute;
+  top: 70px;
+  left: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.5);
+}
+.power {
+  position: relative;
+  width: 88px;
+  height: 62px;
+  display: grid;
+  grid-template-rows: 26px 18px 14px;
+  justify-items: center;
+  align-items: center;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  overflow: hidden;
+}
+.power:hover {
+  border-color: var(--line-strong);
+}
+.power.disabled {
+  opacity: 0.5;
+}
+.power.active,
+.power.aiming {
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.55);
+}
+.p-icon {
+  font-size: 20px;
+  color: #bae6fd;
+}
+.p-name {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.p-cost {
+  font-size: 12px;
+  color: var(--gold);
+}
+.p-key {
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.p-cd {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+
+/* small screens: the stage shrinks to fit, so the side panels grow back (--ui, set by
+   fitStage) to stay readable and easy to tap */
+.powers {
+  transform: scale(min(var(--ui, 1), 1.22));
+  transform-origin: top left;
+}
+.wave-panel {
+  transform: scale(var(--ui, 1));
+  transform-origin: bottom left;
+}
+.topbar {
+  zoom: var(--ui, 1);
+  width: calc(100% / var(--ui, 1));
+}

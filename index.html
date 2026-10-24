@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Swarm Siege</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@500;600;700&display=swap" />
+    <link rel="stylesheet" href="./src/styles/hud.css" />
+    <link rel="stylesheet" href="./src/styles/overlays.css" />
+    <link rel="stylesheet" href="./src/styles/campaign.css" />
+    <link rel="stylesheet" href="./src/styles/versus.css" />
+    <link rel="stylesheet" href="./src/styles/profile.css" />
+    <link rel="stylesheet" href="./src/styles/arena.css" />
+  </head>
+  <body>
+    <div id="stage">
+      <canvas id="gl"></canvas>
+      <canvas id="fx"></canvas>
+      <div id="hud" class="hidden">
+        <div class="topbar">
+          <div class="lvl"><span id="lvlName"></span><span id="waveInfo"></span></div>
+          <div class="coins"><i class="coin"></i><span id="coins">0</span></div>
+          <div id="bases" class="bases"></div>
+          <div class="controls">
+            <button id="btnSpeed" title="Game speed (F)">1x</button>
+            <button id="btnPause" title="Pause (Space)">PAUSE</button>
+            <button id="btnMute" title="Sound">SOUND ON</button>
+            <button id="btnMenu" title="Back to the level map">MAP</button>
+          </div>
+        </div>
+        <div class="wave-panel">
+          <button id="btnWave" title="Start / call next wave (N)">START WAVE 1</button>
+          <div id="wavePreview" class="preview"></div>
+        </div>
+        <div id="bossBar" class="boss-bar hidden">
+          <span id="bossName"></span>
+          <div class="track"><div id="bossFill"></div></div>
+        </div>
+        <div id="powers" class="powers"></div>
+        <div id="popup" class="popup hidden"></div>
+        <div id="banner" class="banner hidden"></div>
+        <div id="tip" class="tip hidden"></div>
+      </div>
+      <div id="screen" class="screen"></div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
