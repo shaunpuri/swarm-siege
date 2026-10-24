@@ -5,6 +5,10 @@ import { earlyBonus } from "@/game/loop";
 import { powerBlocked } from "@/game/powers";
 import { button, byId, h, setText, show } from "@/ui/dom";
 
+// holding a power this long (touch) shows its info card; it stays up this long after release
+const HOLD_MS = 450;
+const TIP_LINGER_MS = 1800;
+
 export type Hud = {
   root: HTMLElement;
   levelName: HTMLElement;
@@ -64,11 +68,31 @@ export function createHud(actions: HudActions): Hud {
 
   for (const kind of POWER_KINDS) {
     const def = POWERS[kind];
+    // on phones there is no hover: holding a power shows its card instead of using it
+    let held = false;
     const el = button(
       "power",
       `<span class="p-icon">${def.icon}</span><span class="p-name">${def.name}</span><span class="p-cost">${def.cost}</span><span class="p-key">${def.key}</span>`,
-      () => actions.onPower(kind),
+      () => {
+        if (!held) actions.onPower(kind);
+        held = false;
+      },
     );
+    let holdTimer = 0;
+    el.addEventListener("pointerdown", (ev) => {
+      if (ev.pointerType !== "touch") return;
+      holdTimer = window.setTimeout(() => {
+        held = true;
+        el.classList.add("show-tip");
+      }, HOLD_MS);
+    });
+    const release = (): void => {
+      window.clearTimeout(holdTimer);
+      window.setTimeout(() => el.classList.remove("show-tip"), TIP_LINGER_MS);
+    };
+    el.addEventListener("pointerup", release);
+    el.addEventListener("pointercancel", release);
+    el.addEventListener("contextmenu", (ev) => ev.preventDefault());
     // an info card that slides out beside the button: what it does, its price and cooldown
     const tip = h("span", "p-tip");
     tip.innerHTML = `<b>${def.name}</b><span>${def.desc}</span><small>${def.cost} coins | ready again after ${def.cooldown}s | key ${def.key}</small>`;
