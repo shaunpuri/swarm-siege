@@ -130,14 +130,13 @@ function render(deps: ArenaDeps): void {
     // fighters are in the game itself (the main loop); investors watch
     if (!amFighter(s) && watching === null) watch(deps, s);
   } else if (s.phase === "result") {
+    // the payout card stays up (room updates refresh it) until the host starts the next round
     stopWatching();
     deps.leaveGame();
     showArenaResult(deps.screen, s, {
       onAgain: () => arenaSend(s, { t: "a-start" }),
       onLeave: leave,
     });
-    // the room is open again for the next round
-    s.phase = "lobby";
   }
 }
 

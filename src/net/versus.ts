@@ -56,7 +56,9 @@ export function onMessage(session: VersusSession, msg: ServerMsg, hooks: VersusH
     session.you = msg.you;
     session.names = msg.names;
     session.error = "";
-    if (session.phase !== "playing") session.phase = "lobby";
+    // a room update never takes the player off the match or its result screen (the server
+    // sends one right after the result when the rival leaves)
+    if (session.phase === "connecting") session.phase = "lobby";
   } else if (msg.t === "start") {
     session.phase = "playing";
     session.opp = null;

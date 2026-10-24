@@ -5,6 +5,7 @@ import { FIGHTER_LOSS, FIGHTER_WIN, settleBets } from "@/net/arenaproto";
 import { createArena, handleArena, leaveArena, tickArena } from "@server/arena";
 import { buy, claim, login, openWallets } from "@server/wallet";
 import { START_DIAMONDS } from "@/config/shop";
+import { newSession, onMessage } from "@/net/versus";
 
 // Arena Stakes: the payout rules, the diamond wallet and a whole room from join to payout.
 
@@ -115,5 +116,19 @@ describe("a whole arena round", () => {
     expect(last(a, "start")).toBeDefined();
     leaveArena(arena, a.conn);
     expect(last(b, "a-result")?.winner).toBe(1);
+  });
+});
+
+describe("result screens survive room updates", () => {
+  test("a versus win by forfeit stays on the result when the room update follows", () => {
+    const session = newSession({ send: () => {}, close: () => {}, tick: () => {} }, false);
+    let results = 0;
+    const hooks = { onChange: () => {}, onStart: () => {}, onResult: () => results++ };
+    onMessage(session, { t: "room", code: "ABCDE", you: 0, names: ["Me", "Rival"] }, hooks);
+    onMessage(session, { t: "start", seed: 1, biome: "desert", layout: 2 }, hooks);
+    onMessage(session, { t: "result", winner: 0, reason: "forfeit", stats: [] }, hooks);
+    onMessage(session, { t: "room", code: "ABCDE", you: 0, names: ["Me"] }, hooks);
+    expect(session.phase).toBe("result");
+    expect(results).toBe(1);
   });
 });
