@@ -14,6 +14,7 @@ const WORK = `${VOICE}/cut`;
 // its caption (title, subtitle)
 type Shot = { line: string; clip: string; start: number; title: string; sub: string };
 const SHOTS: Shot[] = [
+  { line: "00-evolution", clip: "evolution.mp4", start: 0, title: "OUR JOURNEY", sub: "from the first prototype to the final game" },
   { line: "01-intro", clip: "gameplay.mp4", start: 3, title: "SWARM SIEGE", sub: "5 worlds | 50 levels | a swarm that adapts" },
   { line: "02-build", clip: "gameplay.mp4", start: 14, title: "BUILD AND UPGRADE", sub: "every level is a new turret design" },
   { line: "03-swarm", clip: "anaconda-closeup.mp4", start: 0, title: "THE SWARM FIGHTS BACK", sub: "spiders, owls and the night anaconda" },

@@ -12,6 +12,7 @@ const OUT = process.argv[2] ?? "trailer";
 
 // the trailer's narration, one entry per shot (the clip each line plays over is in the name)
 export const LINES: { name: string; text: string; emotion: string }[] = [
+  { name: "00-evolution", text: "It started as blue squares and red dots on a grey path. Then came painted worlds, our own art, and real 3D.", emotion: "thoughtful" },
   { name: "01-intro", text: "This is Swarm Siege. Five worlds. Fifty levels. And a swarm that learns from every move you make.", emotion: "thoughtful" },
   { name: "02-build", text: "Build turrets on the glowing pads. Every upgrade is a new design, and every level three turret unlocks its world's power.", emotion: "encouraging" },
   { name: "03-swarm", text: "But the swarm fights back. Spiders bite, owls dive from the sky, and the night anaconda rises straight out of the river.", emotion: "concerned" },
