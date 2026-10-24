@@ -3,7 +3,7 @@ import type { Biome, Enemy, EnemyKind, Game, TowerKind } from "@/types";
 import { LEVELS, levelsFor } from "@/config/levels";
 import { TOWERS } from "@/config/towers";
 import { usePower } from "@/game/powers";
-import { damageBase } from "@/game/combat";
+import { damageBase, damageEnemy } from "@/game/combat";
 import { buySend, createMatch, receiveSend, sendKinds } from "@/game/match";
 import { createGame } from "@/game/state";
 import { buildTower, specializeTower, upgradeTower } from "@/game/towers";
@@ -396,4 +396,32 @@ describe("play vs AI", () => {
     session.link.send({ t: "over", cleared: 0, time: 30 });
     expect(session.result?.winner).toBe(1);
   }, 60000);
+});
+
+describe("boss defeat finale", () => {
+  for (const biome of BIOMES) {
+    test(`${biome} final boss dies with the bright finale (bossDown event, boss death burst)`, () => {
+      const game = worldGame(biome, 10);
+      for (const base of game.bases) {
+        base.hp = 1e9;
+        base.maxHp = 1e9;
+      }
+      game.status = "ready";
+      game.wave = game.level.waves - 1;
+      startWave(game);
+      let boss: Enemy | undefined;
+      for (let i = 0; i < 120 / DT && !boss; i++) {
+        step(game, DT);
+        boss = game.enemies.find((e) => e.boss && e.intro <= 0);
+      }
+      if (!boss) throw new Error("no boss");
+      game.events = [];
+      damageEnemy(game, boss, boss.hp + 1, null);
+      expect(game.events.some((e) => e.type === "bossDown")).toBe(true);
+      const death = game.deaths.find((d) => d.boss);
+      expect(death).toBeDefined();
+      // a burst of light, not a smoke cloud that would hide the finale
+      expect(game.particles.some((p) => p.kind === "smoke" && p.size > 20)).toBe(false);
+    });
+  }
 });
