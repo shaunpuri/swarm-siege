@@ -31,7 +31,7 @@ function cover(world: World): string {
   return WORLD_THUMBS[1]?.[world.biome] ?? "";
 }
 
-export function showTitle(el: HTMLElement, opts: { onPlay: () => void; onVersus: () => void; onAi: () => void; onArena: () => void; onBadges: () => void; badges: string }): void {
+export function showTitle(el: HTMLElement, opts: { onPlay: () => void; onVersus: () => void; onAi: () => void; onArena: () => void; onBadges: () => void; onCodex: () => void; badges: string }): void {
   el.innerHTML = "";
   el.className = "screen camp title-screen";
   el.style.backgroundImage = `linear-gradient(180deg, rgba(2,6,23,0.25), rgba(2,6,23,0.85) 75%), url("${WORLD_THUMBS[1]?.grassland ?? ""}")`;
@@ -47,7 +47,9 @@ export function showTitle(el: HTMLElement, opts: { onPlay: () => void; onVersus:
   menu.appendChild(button("big play versus", "ONLINE 1 VS 1", opts.onVersus));
   menu.appendChild(button("big play ai", "PLAY VS AI", opts.onAi));
   menu.appendChild(button("big play arena", "ARENA STAKES", opts.onArena));
-  menu.appendChild(button("big", `BADGES  ${opts.badges}`, opts.onBadges));
+  const row = h("div", "title-row");
+  row.append(button("big", `BADGES  ${opts.badges}`, opts.onBadges), button("big", "CODEX", opts.onCodex));
+  menu.appendChild(row);
   el.appendChild(menu);
   const how = h("div", "howto");
   how.innerHTML =

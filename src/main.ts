@@ -30,6 +30,7 @@ import { connectAi } from "@/net/airival";
 import { callApi, loadCreds } from "@/net/account";
 import { claimRewards, dailyReward, levelRewards } from "@/rewards";
 import { showShop } from "@/ui/shop";
+import { showCodex } from "@/ui/codex";
 import type { ArenaDeps } from "@/arenaflow";
 import { arenaActive, leaveArenaRoom, openArena } from "@/arenaflow";
 import { loadMatches, recordMatch } from "@/history";
@@ -83,7 +84,7 @@ function openMenu(): void {
 
 function openTitle(): void {
   leaveGame();
-  showTitle(screen, { onPlay: openWorlds, onVersus: () => openVersus(""), onAi: playAi, onArena: () => void openArena(arenaDeps), onBadges: openBadges, badges: `${ui.badges.size}` });
+  showTitle(screen, { onPlay: openWorlds, onVersus: () => openVersus(""), onAi: playAi, onArena: () => void openArena(arenaDeps), onBadges: openBadges, onCodex: () => showCodex(screen, openTitle), badges: `${ui.badges.size}` });
   void showChip();
 }
 
