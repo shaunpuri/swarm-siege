@@ -98,20 +98,30 @@ async function towerViews(t: (typeof TOWER_ART)["basic"]): Promise<TowerViews> {
 }
 
 export async function loadArt(): Promise<Art> {
-  const upright = async (v: { front: string; back: string; side: string }): Promise<UprightViews> => ({ front: await pic(v.front), back: await pic(v.back), side: await pic(v.side) });
-  const skin = async (set: Record<EnemyKind, { front: string; back: string; side: string }>): Promise<Record<EnemyKind, UprightViews>> => ({
-    scout: await upright(set.scout),
-    brute: await upright(set.brute),
-    overlord: await upright(set.overlord),
-    titan: await upright(set.titan),
-  });
+  const upright = async (v: { front: string; back: string; side: string }): Promise<UprightViews> => {
+    const [front, back, side] = await Promise.all([pic(v.front), pic(v.back), pic(v.side)]);
+    return { front, back, side };
+  };
+  const skin = async (set: Record<EnemyKind, { front: string; back: string; side: string }>): Promise<Record<EnemyKind, UprightViews>> => {
+    const [scout, brute, overlord, titan] = await Promise.all([upright(set.scout), upright(set.brute), upright(set.overlord), upright(set.titan)]);
+    return { scout, brute, overlord, titan };
+  };
   const pics = (urls: string[]): Promise<Pic[]> => Promise.all(urls.map(pic));
-  const [snow, water, desert, cyberSkin, forest, bossCar, bossMorph, pyramid] = await Promise.all([skin(SNOW_ENEMY_ART), skin(AQUA_ENEMY_ART), skin(DESERT_ENEMY_ART), skin(CYBER_ENEMY_ART), skin(FOREST_ENEMY_ART), upright(BOSS_CAR_ART), pics(BOSS_MORPH_ART), pics(PYRAMID_ART)]);
-  const [snowBases, aquaBases, desertBases, cyberBases, forestBases] = await Promise.all(["snow", "aqua", "desert", "cyber", "forest"].map((k) => pics(BASE_ART[k] ?? [])));
-  const sides = (set: { front: string; back: string; left: string; right: string }[]): Promise<SideViews[]> => Promise.all(set.map(async (v) => ({ front: await pic(v.front), back: await pic(v.back), left: await pic(v.left), right: await pic(v.right) })));
-  const [forestTower, aquaSides, desertSides] = await Promise.all([sides(FOREST_TOWER_ART), sides(AQUA_TOWER_VIEWS), sides(DESERT_TOWER_VIEWS)]);
-  const [coldTower, aquaTower, desertTower, cyberTower, iceBurst] = await Promise.all([pics(COLD_TOWER_ART), pics(AQUA_TOWER_ART), pics(DESERT_TOWER_ART), pics(CYBER_TOWER_ART), pics(ICE_BURST_ART)]);
-  const [basic, rapid, heavy, scout, brute, overlord, titan, pad, painting, cyber, maps] = await Promise.all([
+  const sides = (set: { front: string; back: string; left: string; right: string }[]): Promise<SideViews[]> =>
+    Promise.all(
+      set.map(async (v) => {
+        const [front, back, left, right] = await Promise.all([pic(v.front), pic(v.back), pic(v.left), pic(v.right)]);
+        return { front, back, left, right };
+      }),
+    );
+  // everything downloads at once, the 3D models (the biggest part) first; awaiting one group
+  // before starting the next made the loading screen several times longer
+  const modelsLoading = loadModels();
+  const skinsLoading = Promise.all([skin(SNOW_ENEMY_ART), skin(AQUA_ENEMY_ART), skin(DESERT_ENEMY_ART), skin(CYBER_ENEMY_ART), skin(FOREST_ENEMY_ART), upright(BOSS_CAR_ART), pics(BOSS_MORPH_ART), pics(PYRAMID_ART)]);
+  const basesLoading = Promise.all(["snow", "aqua", "desert", "cyber", "forest"].map((k) => pics(BASE_ART[k] ?? [])));
+  const sidesLoading = Promise.all([sides(FOREST_TOWER_ART), sides(AQUA_TOWER_VIEWS), sides(DESERT_TOWER_VIEWS)]);
+  const towersLoading = Promise.all([pics(COLD_TOWER_ART), pics(AQUA_TOWER_ART), pics(DESERT_TOWER_ART), pics(CYBER_TOWER_ART), pics(ICE_BURST_ART)]);
+  const mainLoading = Promise.all([
     towerViews(TOWER_ART.basic),
     towerViews(TOWER_ART.rapid),
     towerViews(TOWER_ART.heavy),
@@ -124,6 +134,11 @@ export async function loadArt(): Promise<Art> {
     pic(CYBER_ART),
     Promise.all(MAP_ART.map(pic)),
   ]);
+  const [snow, water, desert, cyberSkin, forest, bossCar, bossMorph, pyramid] = await skinsLoading;
+  const [snowBases, aquaBases, desertBases, cyberBases, forestBases] = await basesLoading;
+  const [forestTower, aquaSides, desertSides] = await sidesLoading;
+  const [coldTower, aquaTower, desertTower, cyberTower, iceBurst] = await towersLoading;
+  const [basic, rapid, heavy, scout, brute, overlord, titan, pad, painting, cyber, maps] = await mainLoading;
   return {
     // the Cold World Tower has one view per level; its glows reuse the basic turret's
     towers: { basic, rapid, heavy, frost: { ...basic, front: coldTower[0] ?? basic.front } },
@@ -134,7 +149,7 @@ export async function loadArt(): Promise<Art> {
     bossMorph,
     bases: { snow: snowBases ?? [], water: aquaBases ?? [], desert: desertBases ?? [], cyber: cyberBases ?? [], grassland: forestBases ?? [] },
     biomeTowers: { snow: coldTower, water: aquaTower, desert: desertTower, cyber: cyberTower },
-    models: await loadModels(),
+    models: await modelsLoading,
     iceBurst,
     enemies: { scout, brute, overlord, titan },
     maps: maps.map((m) => m.tex),
