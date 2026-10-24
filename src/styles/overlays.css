@@ -488,3 +488,20 @@
   background: linear-gradient(180deg, #0369a1, #1e3a8a);
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
 }
+/* the first load's progress bar */
+.load-bar {
+  width: min(320px, 70vw);
+  height: 8px;
+  margin-top: 16px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+.load-bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #facc15);
+  transition: width 0.2s;
+}

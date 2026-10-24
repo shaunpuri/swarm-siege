@@ -1,3 +1,4 @@
+import { onLoadProgress } from "@/loadprogress";
 import { nowMs } from "@/clock";
 import type { Biome, EnemyKind, Game, TowerKind } from "@/types";
 import { enemyName } from "@/config/biomes";
@@ -21,8 +22,12 @@ function starRow(n: number): string {
 export function showLoading(el: HTMLElement): void {
   el.className = "screen";
   el.style.backgroundImage = "";
-  el.innerHTML = `<div class="loading"><b>SWARM SIEGE</b><span>Loading the five worlds...</span></div>`;
+  el.innerHTML = `<div class="loading"><b>SWARM SIEGE</b><span>Loading the five worlds...</span><div class="load-bar"><i></i></div></div>`;
   show(el, true);
+  const fill = el.querySelector<HTMLElement>(".load-bar i");
+  onLoadProgress((done) => {
+    if (fill) fill.style.width = `${Math.round(done * 100)}%`;
+  });
 }
 
 const MODE_LABELS: Record<MapMode, string> = {

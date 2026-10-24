@@ -4,6 +4,7 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 import type { Biome } from "@/types";
 import { BASE_MODELS, ENEMY_MODELS, TOWER_MODELS } from "@/three/modelart";
 import { dropIslands } from "@/three/islands";
+import { tracked } from "@/loadprogress";
 
 // Real 3D models of the turrets, bases and enemies, built with the Tripo API from the views on
 // each concept sheet (scripts/tripo.ts) and slimmed for the web. Each is centred on its foot
@@ -64,7 +65,7 @@ async function loadSet(loader: GLTFLoader, urls: Record<string, string>, lift: L
   const out = new Map<string, Model>();
   await Promise.all(
     Object.entries(urls).map(async ([key, url]) => {
-      const gltf = await loader.loadAsync(url);
+      const gltf = await tracked(loader.loadAsync(url));
       brighten(gltf.scene, lift);
       dropIslands(gltf.scene);
       // turned in the mesh data itself, so the swimming bend (which works in the mesh's own

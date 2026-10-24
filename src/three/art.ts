@@ -4,6 +4,7 @@ import type { EnemySkin, Skin } from "@/three/skins";
 import { AQUA_ENEMY_ART, AQUA_TOWER_ART, BOSS_CAR_ART, BOSS_MORPH_ART, COLD_TOWER_ART, CYBER_ART, CYBER_ENEMY_ART, CYBER_TOWER_ART, DESERT_ENEMY_ART, FOREST_ENEMY_ART, FOREST_TOWER_ART, AQUA_TOWER_VIEWS, DESERT_TOWER_VIEWS, PYRAMID_ART, DESERT_TOWER_ART, ENEMY_ART, ICE_BURST_ART, MAP_ART, PAD_ART, PAINTING_ART, SNOW_ENEMY_ART, TOWER_ART } from "@/three/manifest";
 import { BASE_ART } from "@/three/worldart";
 import { loadModels } from "@/three/models";
+import { tracked } from "@/loadprogress";
 import type { Models } from "@/three/models";
 import type { PaintingId } from "@/config/painting";
 
@@ -42,7 +43,11 @@ export type Art = {
   glow: THREE.Texture;
 };
 
-async function pic(url: string): Promise<Pic> {
+function pic(url: string): Promise<Pic> {
+  return tracked(loadPic(url));
+}
+
+async function loadPic(url: string): Promise<Pic> {
   const img = new Image();
   // onload rather than img.decode(): Chrome can hold decode() back while the tab is hidden,
   // which would leave the loading screen hanging for a player who switched tabs
