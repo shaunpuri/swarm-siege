@@ -240,7 +240,9 @@ export type Sfx =
   | "power"
   | "win"
   | "lose"
-  | "wave";
+  | "wave"
+  | "storm"
+  | "bossDown";
 
 export type GameEvent =
   | { type: "evolve"; family: TowerKind; share: number }

@@ -53,7 +53,7 @@ export function castStorm(game: Game, tower: Tower, target: Vec, damage: number)
     family: tower.kind,
   };
   game.storms.push(storm);
-  game.sfx.push("power");
+  game.sfx.push("storm");
 }
 
 function inside(storm: Storm, e: Enemy): boolean {

@@ -41,7 +41,7 @@ function killEnemy(game: Game, enemy: Enemy): void {
     game.shake = 18;
     game.events.push({ type: "bossDown", kind: enemy.kind, reward: enemy.reward });
   }
-  game.sfx.push(enemy.boss ? "bigboom" : "kill");
+  game.sfx.push(enemy.boss ? "bossDown" : "kill");
 }
 
 export function splashDamage(game: Game, at: Vec, radius: number, amount: number, family: TowerKind | null): void {

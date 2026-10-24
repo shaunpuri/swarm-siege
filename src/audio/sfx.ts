@@ -45,6 +45,17 @@ const VOICES: Record<Sfx, Voice[]> = {
   ],
   lose: [{ wave: "sawtooth", from: 300, to: 60, dur: 1.2, vol: 0.15, gap: 0 }],
   wave: [{ wave: "square", from: 220, to: 440, dur: 0.3, vol: 0.07, gap: 0.3 }],
+  // a level 3 storm: a rising roar of wind
+  storm: [
+    { wave: "noise", from: 300, to: 1400, dur: 1.1, vol: 0.12, gap: 0.6 },
+    { wave: "sine", from: 80, to: 160, dur: 1.0, vol: 0.08, gap: 0.6 },
+  ],
+  // a boss falls: a deep boom, then a rising victory chord
+  bossDown: [
+    { wave: "noise", from: 500, to: 40, dur: 0.9, vol: 0.25, gap: 1 },
+    { wave: "sine", from: 70, to: 25, dur: 0.8, vol: 0.25, gap: 1 },
+    { wave: "triangle", from: 392, to: 784, dur: 0.9, vol: 0.1, gap: 1 },
+  ],
 };
 
 let audio: AudioContext | null = null;
