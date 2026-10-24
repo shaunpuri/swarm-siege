@@ -132,3 +132,70 @@ describe("result screens survive room updates", () => {
     expect(results).toBe(1);
   });
 });
+
+describe("arena money edge cases (from the code review)", () => {
+  async function room(n: number): Promise<{ arena: ReturnType<typeof createArena>; cs: Client[]; roles: number[] }> {
+    const w = await openWallets(tmp());
+    const arena = createArena(w, () => 0.99, () => 0);
+    const cs = Array.from({ length: n }, (_, i) => client(i + 1));
+    handleArena(arena, cs[0]!.conn, { t: "a-join", code: "", name: "P0", pin: "1111" });
+    const code = last(cs[0]!, "a-room")?.code ?? "";
+    cs.slice(1).forEach((c, i) => handleArena(arena, c.conn, { t: "a-join", code, name: `P${i + 1}`, pin: "1111" }));
+    handleArena(arena, cs[0]!.conn, { t: "a-start" });
+    return { arena, cs, roles: last(cs[0]!, "a-roles")?.fighters ?? [] };
+  }
+
+  test("a lower slot leaving keeps bets on the same fighter", async () => {
+    const { arena, cs, roles } = await room(4);
+    const investors = [0, 1, 2, 3].filter((i) => !roles.includes(i));
+    const [inv, other] = investors;
+    const target = roles[1] ?? 0;
+    handleArena(arena, cs[inv!]!.conn, { t: "a-bet", fighter: target, stake: 100 });
+    const backedName = last(cs[0]!, "a-room")?.players[target]?.name;
+    leaveArena(arena, cs[other!]!.conn);
+    const bets = last(cs[inv!]!, "a-bets")?.bets ?? [];
+    const room2 = last(cs[inv!]!, "a-room");
+    const bet = bets[0];
+    expect(bet).toBeDefined();
+    expect(room2?.players[bet?.fighter ?? -1]?.name).toBe(backedName);
+    expect(room2?.fighters.map((f) => room2.players[f]?.name)).toContain(backedName);
+  });
+
+  test("an investor who left mid-match still gets a winning payout", async () => {
+    const { arena, cs, roles } = await room(3);
+    const inv = [0, 1, 2].find((i) => !roles.includes(i)) ?? 0;
+    const w = arena.wallets;
+    handleArena(arena, cs[inv]!.conn, { t: "a-bet", fighter: roles[0] ?? 0, stake: 100 });
+    tickArena(arena);
+    const name = `P${inv}`;
+    leaveArena(arena, cs[inv]!.conn);
+    // fighter 1 falls first: fighter 0 (the one backed) wins, house bonus 25%
+    const f0 = cs[roles[0] ?? 0]!;
+    const f1 = cs[roles[1] ?? 1]!;
+    handleArena(arena, f0.conn, { t: "state", s: { wave: 3, cleared: 2, time: 60, baseHp: 1, baseMax: 1, coins: 0, towers: [], enemies: [] } });
+    handleArena(arena, f1.conn, { t: "over", cleared: 1, time: 40 });
+    expect(w.accounts.get(name.toLowerCase())?.diamonds).toBe(START_DIAMONDS + 25);
+  });
+
+  test("a fighter leaving during betting refunds everyone and pays no prize", async () => {
+    const { arena, cs, roles } = await room(3);
+    const inv = [0, 1, 2].find((i) => !roles.includes(i)) ?? 0;
+    handleArena(arena, cs[inv]!.conn, { t: "a-bet", fighter: roles[0] ?? 0, stake: 250 });
+    const stayer = roles[1] ?? 1;
+    leaveArena(arena, cs[roles[0] ?? 0]!.conn);
+    expect(arena.wallets.accounts.get(`p${inv}`)?.diamonds).toBe(START_DIAMONDS);
+    expect(arena.wallets.accounts.get(`p${stayer}`)?.diamonds).toBe(START_DIAMONDS);
+    expect(last(cs[inv]!, "a-room")?.fighters).toEqual([]);
+  });
+
+  test("rewards cannot be farmed: fake dates, levels and badges pay nothing", async () => {
+    const w = await openWallets(tmp());
+    const a = login(w, "Farmer", "1234");
+    if (typeof a === "string") throw new Error(a);
+    expect(claim(w, a, "daily:a")).toBe(20);
+    expect(claim(w, a, "daily:b")).toBe(0);
+    expect(claim(w, a, "level:world-grassland:999:3")).toBe(0);
+    expect(claim(w, a, "level:hack:1:3")).toBe(0);
+    expect(claim(w, a, "badge:made-up")).toBe(0);
+  });
+});

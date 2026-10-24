@@ -5,7 +5,6 @@ import type { Actors } from "@/three/actors";
 import type { Selection } from "@/render/selection";
 import { H, W, bar, hpColor } from "@/render/canvas";
 import { RANGE_SCALE, TOWERS, towerStats } from "@/config/towers";
-import { ADAPTATIONS } from "@/game/adapt";
 import { STRIKE } from "@/game/powers";
 import { towerById } from "@/game/state";
 import { spriteHeight } from "@/three/actors";
@@ -149,12 +148,6 @@ function healthLayer(ctx: CanvasRenderingContext2D, game: Game, actors: Actors, 
     }
   }
   for (const e of game.enemies) {
-    if (e.resist !== null) {
-      ctx.save();
-      ctx.lineDashOffset = -t * 20;
-      ring(ctx, e.pos, e.radius * 1.4, e.radius * 0.95, ADAPTATIONS[e.resist].color, 2.5, [6, 4]);
-      ctx.restore();
-    }
     if (e.boss || e.hp >= e.maxHp) continue;
     const w = Math.max(24, e.radius * 2);
     bar(ctx, e.pos.x - w / 2, e.pos.y - spriteHeight(actors, "enemy", e.id) * 0.9 - 6 - (game.level.biome === "water" ? 35 : 0), w, 4, e.hp / e.maxHp, hpColor(e.hp / e.maxHp));

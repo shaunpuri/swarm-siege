@@ -54,6 +54,14 @@ function onArena(s: ArenaSession, msg: ArenaServerMsg, hooks: ArenaHooks, fightH
     s.players = msg.players;
     s.error = "";
     if (s.phase === "connecting") s.phase = "lobby";
+    // the server's fighter slots (they shift when someone leaves); none means the round was
+    // called off during betting
+    if (msg.fighters.length > 0) s.fighters = msg.fighters;
+    else if (s.phase === "betting") {
+      s.phase = "lobby";
+      s.fighters = [];
+      s.fight = null;
+    }
   } else if (msg.t === "a-roles") {
     s.fighters = msg.fighters;
     s.you = msg.you;

@@ -36,7 +36,7 @@ export type ArenaClientMsg =
   | { t: "leave" };
 
 export type ArenaServerMsg =
-  | { t: "a-room"; code: string; you: number; players: ArenaPlayer[] }
+  | { t: "a-room"; code: string; you: number; players: ArenaPlayer[]; fighters: number[] }
   | { t: "a-roles"; fighters: number[]; you: number; seed: number; biome: Biome; layout: number; seconds: number }
   | { t: "a-bets"; bets: Bet[]; seconds: number }
   | { t: "a-live" }
@@ -123,7 +123,8 @@ export function parseArenaServer(raw: string): ArenaServerMsg | null {
   if (!m) return null;
   const t = m["t"];
   const players = listOf(m["players"], isPlayer);
-  if (t === "a-room" && isStr(m["code"], 10) && isNum(m["you"]) && players) return { t, code: m["code"], you: m["you"], players };
+  const roomFighters = listOf(m["fighters"], isNum);
+  if (t === "a-room" && isStr(m["code"], 10) && isNum(m["you"]) && players && roomFighters) return { t, code: m["code"], you: m["you"], players, fighters: roomFighters };
   const fighters = listOf(m["fighters"], isNum);
   if (t === "a-roles" && fighters && isNum(m["you"]) && isNum(m["seed"]) && isBiome(m["biome"]) && isNum(m["layout"]) && isNum(m["seconds"])) return { t, fighters, you: m["you"], seed: m["seed"], biome: m["biome"], layout: m["layout"], seconds: m["seconds"] };
   const bets = listOf(m["bets"], isBet);

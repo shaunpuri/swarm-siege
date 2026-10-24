@@ -1,3 +1,5 @@
+import { MAP_MODES, levelsFor } from "@/config/levels";
+import { BADGES } from "@/badges";
 import { BADGE_DIAMONDS, CLEAR_DIAMONDS, DAILY_DIAMONDS, STAR_DIAMONDS, START_DIAMONDS, shopItem } from "@/config/shop";
 
 // Diamond accounts, kept on the server so balances cannot be edited in a browser. An account
@@ -57,21 +59,28 @@ export function addDiamonds(w: Wallets, a: Account, delta: number): void {
 
 // a campaign reward: "level:<mode>:<id>:<stars>", "badge:<id>" or "daily:<yyyy-mm-dd>"; each
 // pays once (a level pays again only for stars it had not earned before). Returns the payout.
-export function claim(w: Wallets, a: Account, reward: string): number {
+// only rewards that exist can be claimed: a real campaign level, a real badge, and the daily
+// gift for the server's own date (whatever date the page sends)
+function realLevel(mode: string, id: string): boolean {
+  const found = MAP_MODES.find((m) => m === mode);
+  return found !== undefined && found.startsWith("world-") && levelsFor(found).some((l) => String(l.id) === id);
+}
+
+export function claim(w: Wallets, a: Account, reward: string, today = new Date().toISOString().slice(0, 10)): number {
   const [kind, ...rest] = reward.split(":");
   let pay = 0;
-  if (kind === "level" && rest.length === 3) {
+  if (kind === "level" && rest.length === 3 && realLevel(rest[0] ?? "", rest[1] ?? "")) {
     const levelKey = `${rest[0]}:${rest[1]}`;
     const stars = Math.max(0, Math.min(3, Number(rest[2]) || 0));
     const had = a.stars[levelKey];
     if (had === undefined) pay = CLEAR_DIAMONDS + STAR_DIAMONDS * stars;
     else if (stars > had) pay = STAR_DIAMONDS * (stars - had);
     if (had === undefined || stars > had) a.stars[levelKey] = stars;
-  } else if (kind === "badge" && rest[0] && !a.badges.includes(rest[0])) {
+  } else if (kind === "badge" && rest[0] && BADGES.some((b) => b.id === rest[0]) && !a.badges.includes(rest[0])) {
     a.badges.push(rest[0]);
     pay = BADGE_DIAMONDS;
-  } else if (kind === "daily" && rest[0] && a.daily !== rest[0]) {
-    a.daily = rest[0];
+  } else if (kind === "daily" && a.daily !== today) {
+    a.daily = today;
     pay = DAILY_DIAMONDS;
   }
   if (pay > 0) addDiamonds(w, a, pay);

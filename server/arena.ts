@@ -17,7 +17,7 @@ export type ArenaConn = { id: number; send: (msg: ArenaServerMsg) => void };
 
 type Member = { conn: ArenaConn; name: string; account: Account; run: Run };
 type Phase = "lobby" | "betting" | "playing";
-type Room = { code: string; members: Member[]; phase: Phase; fighters: number[]; bets: Bet[]; betEnds: number; match: { seed: number; biome: (typeof VERSUS_BIOMES)[number]; layout: number } | null };
+type Room = { code: string; members: Member[]; phase: Phase; fighters: number[]; bets: Bet[]; bettors: Map<string, Account>; betEnds: number; match: { seed: number; biome: (typeof VERSUS_BIOMES)[number]; layout: number } | null };
 
 export type Arena = { rooms: Map<string, Room>; byConn: Map<number, Room>; wallets: Wallets; random: () => number; now: () => number };
 
@@ -36,7 +36,7 @@ const fresh = (): Run => ({ cleared: 0, time: 0, over: false });
 
 function announce(room: Room): void {
   const players = room.members.map((m) => ({ name: m.name, diamonds: m.account.diamonds }));
-  room.members.forEach((m, i) => m.conn.send({ t: "a-room", code: room.code, you: i, players }));
+  room.members.forEach((m, i) => m.conn.send({ t: "a-room", code: room.code, you: i, players, fighters: room.phase === "lobby" ? [] : room.fighters }));
 }
 
 function secondsLeft(arena: Arena, room: Room): number {
@@ -55,6 +55,7 @@ function start(arena: Arena, room: Room, conn: ArenaConn): void {
   const order = room.members.map((_, i) => i).sort(() => arena.random() - 0.5);
   room.fighters = order.slice(0, 2).sort((a, b) => a - b);
   room.bets = [];
+  room.bettors = new Map();
   room.phase = "betting";
   room.match = {
     seed: Math.floor(arena.random() * 2 ** 31),
@@ -83,6 +84,7 @@ function bet(arena: Arena, room: Room, conn: ArenaConn, fighter: number, stake: 
   if (old) addDiamonds(arena.wallets, me.account, old.stake);
   addDiamonds(arena.wallets, me.account, -stake);
   room.bets = [...room.bets.filter((b) => b.name !== me.name), { name: me.name, fighter, stake }];
+  room.bettors.set(me.name, me.account);
   shareBets(arena, room);
   announce(room);
   // everyone has bet: no need to wait
@@ -120,17 +122,19 @@ function finish(arena: Arena, room: Room, winnerSide: number, reason: "outlasted
   const winnerSlot = winnerSide < 0 ? -1 : (room.fighters[winnerSide] ?? -1);
   const settled = settleBets(room.bets, winnerSlot);
   const payouts: Payout[] = [];
+  // every bet is paid, including those of investors who have since left the room; the stake
+  // was taken when placed, so winners (and everyone on a draw) get it back with their gain
+  for (const b of room.bets) {
+    const account = room.bettors.get(b.name);
+    const delta = settled.get(b.name) ?? 0;
+    if (account && delta >= 0) addDiamonds(arena.wallets, account, b.stake + delta);
+  }
   room.members.forEach((m, i) => {
     const fighting = room.fighters.includes(i);
-    let delta = 0;
+    let delta = settled.get(m.name) ?? 0;
     if (fighting) {
       delta = winnerSlot === i ? FIGHTER_WIN : FIGHTER_LOSS;
       addDiamonds(arena.wallets, m.account, delta);
-    } else {
-      const b = room.bets.find((x) => x.name === m.name);
-      delta = settled.get(m.name) ?? 0;
-      // the stake was taken when placed: give it back to winners (and on a draw) with the gain
-      if (b && delta >= 0) addDiamonds(arena.wallets, m.account, b.stake + delta);
     }
     payouts.push({ name: m.name, role: fighting ? "fighter" : "investor", delta, diamonds: m.account.diamonds });
   });
@@ -144,7 +148,23 @@ function finish(arena: Arena, room: Room, winnerSide: number, reason: "outlasted
     m.conn.send({ t: "a-result", winner: winnerSide, payouts, stats });
   });
   room.bets = [];
+  room.bettors = new Map();
   announce(room);
+}
+
+// a fighter left before the match began: no match, so every stake goes back and the room
+// returns to the lobby
+function cancelRound(arena: Arena, room: Room): void {
+  for (const b of room.bets) {
+    const account = room.bettors.get(b.name);
+    if (account) addDiamonds(arena.wallets, account, b.stake);
+  }
+  room.bets = [];
+  room.bettors = new Map();
+  room.phase = "lobby";
+  room.fighters = [];
+  room.match = null;
+  for (const m of room.members) m.conn.send({ t: "error", msg: "A fighter left before the match: all bets were refunded" });
 }
 
 function decide(arena: Arena, room: Room): void {
@@ -180,7 +200,7 @@ export function handleArena(arena: Arena, conn: ArenaConn, msg: ArenaClientMsg):
     if (target && target.phase !== "lobby") return conn.send({ t: "error", msg: "That match has already started" });
     if (target?.members.some((m) => m.name.toLowerCase() === name.toLowerCase())) return conn.send({ t: "error", msg: "That name is already in the room" });
     if (!target) {
-      target = { code: newCode(arena), members: [], phase: "lobby", fighters: [], bets: [], betEnds: 0, match: null };
+      target = { code: newCode(arena), members: [], phase: "lobby", fighters: [], bets: [], bettors: new Map(), betEnds: 0, match: null };
       arena.rooms.set(target.code, target);
     }
     target.members.push({ conn, name, account, run: fresh() });
@@ -212,17 +232,23 @@ export function leaveArena(arena: Arena, conn: ArenaConn): void {
   arena.byConn.delete(conn.id);
   const i = room.members.findIndex((m) => m.conn.id === conn.id);
   const side = room.fighters.indexOf(i);
-  if (side >= 0 && room.phase !== "lobby") finish(arena, room, 1 - side, "forfeit");
+  if (side >= 0 && room.phase === "betting") cancelRound(arena, room);
+  else if (side >= 0 && room.phase === "playing") finish(arena, room, 1 - side, "forfeit");
   // before the match started, a leaving investor gets their stake back
   const me = room.members[i];
   const myBet = me ? room.bets.find((b) => b.name === me.name) : undefined;
   if (me && myBet && room.phase === "betting") {
     addDiamonds(arena.wallets, me.account, myBet.stake);
     room.bets = room.bets.filter((b) => b !== myBet);
+    room.bettors.delete(me.name);
   }
   room.members = room.members.filter((m) => m.conn.id !== conn.id);
-  // slots shift down: keep the fighter indexes pointing at the same players
-  room.fighters = room.fighters.map((f) => (f > i ? f - 1 : f));
+  // slots shift down: keep the fighter indexes, and the bets placed on them, pointing at the
+  // same players
+  const shift = (f: number): number => (f > i ? f - 1 : f);
+  room.fighters = room.fighters.map(shift);
+  room.bets = room.bets.map((b) => ({ ...b, fighter: shift(b.fighter) }));
+  if (room.phase === "betting") shareBets(arena, room);
   if (room.members.length === 0) arena.rooms.delete(room.code);
   else announce(room);
 }

@@ -1,4 +1,5 @@
-import type { Difficulty, Game, LevelDef, SendKind } from "@/types";
+import type { Biome, Difficulty, Game, LevelDef, SendKind } from "@/types";
+import type { BadgeDef } from "@/badges";
 import { levelById, levelsFor } from "@/config/levels";
 import type { MapMode } from "@/config/levels";
 import { backdropFor, makeThumbs } from "@/ui/thumbs";
@@ -24,7 +25,7 @@ import { badgesForVersus, badgesForWin } from "@/badges";
 import { WORLDS, worldIndex } from "@/config/campaign";
 import type { World } from "@/config/campaign";
 import type { ClientMsg } from "@/net/protocol";
-import type { MatchStart } from "@/net/versus";
+import type { MatchStart, VersusSession } from "@/net/versus";
 import { closeVersus, connectVersus, tickVersus, versusSend } from "@/net/versus";
 import { connectAi } from "@/net/airival";
 import { callApi, loadCreds } from "@/net/account";
@@ -226,7 +227,13 @@ function joinRoom(first: ClientMsg): void {
 
 function renderRoom(): void {
   const session = ui.versus;
-  if (!session || session.phase === "playing" || session.phase === "result") return;
+  if (!session || session.phase === "playing") return;
+  // the room changed after the match (the rival left, or became host): redraw the result so
+  // its buttons match who is still in the room
+  if (session.phase === "result") {
+    if (lastResult && !arenaActive()) drawResult(session, lastResult.badges, lastResult.biome);
+    return;
+  }
   // could not connect or the room was refused: back to the menu with the reason
   if (session.error && session.code === "") {
     closeVersus(session);
@@ -272,6 +279,14 @@ function showMatchResult(): void {
   // in the arena the payout card follows straight after (src/arenaflow.ts)
   if (arenaActive()) return;
   leaveGame();
+  lastResult = { badges, biome };
+  drawResult(session, badges, biome);
+}
+
+// the last versus result on screen, so it can be redrawn when the room changes
+let lastResult: { badges: BadgeDef[]; biome: Biome } | null = null;
+
+function drawResult(session: VersusSession, badges: BadgeDef[], biome: Biome): void {
   showVersusResult(screen, session, badges, biome, { onRematch: () => versusSend(session, { t: "start" }), onLeave: leaveRoom });
 }
 
